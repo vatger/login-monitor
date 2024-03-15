@@ -1,0 +1,2 @@
+cd /opt/monitor
+python -m monitor.monitor_login
