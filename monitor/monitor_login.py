@@ -101,9 +101,9 @@ if __name__ == '__main__':
     for login in logins:
         check, msg, _ = check_connection(login, datahub, solos, t1, t2, roster)
         if not check:
-            with open('messaged.txt', 'r') as f:
+            with open('/data/monitor/messaged.txt', 'r') as f:
                 content = f.read()
             if not str(login['cid']) in content:
                 send_message(msg)
-                with open('messaged.txt', 'a') as f:
+                with open('/data/monitor/messaged.txt', 'a') as f:
                     f.write(str(login['cid']) + '\n')
