@@ -13,6 +13,11 @@ headers = {
     }
 
 
+eud_header = {'X-API-KEY': api_key,
+                   'accept': 'application/json',
+                  'User-Agent': 'VATGER'}
+
+
 def split_compare(cs1: str, cs2: str) -> [bool, str]:
     return cs1.split('_')[0] == cs2.split('_')[0] and cs1.split('_')[-1] == cs2.split('_')[-1]
 
@@ -23,9 +28,6 @@ def get_station_data() -> list[dict]:
 
 
 def get_endorsements(type: str) -> list[dict]:
-    eud_header = {'X-API-KEY': api_key,
-                   'accept': 'application/json',
-                  'User-Agent': 'VATGER'}
     return requests.get(f'https://core.vateud.net/api/facility/endorsements/{type}', headers=eud_header).json()['data']
 
 
@@ -36,8 +38,6 @@ def get_logins() -> list[dict]:
 
 
 def get_roster() -> list[dict]:
-    eud_header = {'X-API-KEY': api_key,
-                  'accept': 'application/json'}
     return requests.get(f'https://core.vateud.net/api/facility/roster', headers=eud_header).json()['data']['controllers']
 
 
