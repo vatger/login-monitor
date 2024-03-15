@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{#  <h1>{% block title %}Sector Plotting{% endblock %}</h1>#}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+<div class="row">
+    <div class="col">
+        <h1>May I Control?</h1>
+    </div>
+</div>
+<div class="row">
+<div class="col">
+  <form method="post">
+    <label for="station">Station</label>
+    <input name="station" id="station" required>
+    <br>
+      <label for="cid">VATSIM ID</label>
+    <input name="cid" id="cid" size="9" type="number" value="{{ request.form['cid'] }}" required>
+
+    <input type="submit" value="Submit">
+  </form>
+</div>
+</div>
+<div class="row">
+{% if request.method == 'POST' %}
+<div class="col">
+    {% if may_control %} ✅ {{ msg }} {% else %} ❌ {{ msg }}{% endif %} <br>
+    {% if course_required %} ⚠️ A Moodle Course is required before you staff this position. {%  endif %}
+</div>
+{% endif %}
+</div>
+</div>
+{% endblock %}

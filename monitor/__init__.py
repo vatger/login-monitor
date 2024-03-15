@@ -1,0 +1,30 @@
+from flask import Flask, render_template, request
+from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, get_rating, is_course_required
+from .monitor_login import check_connection
+
+
+def create_app():
+    app = Flask(__name__, instance_relative_config=True)
+
+    @app.route('/', methods=('GET', 'POST'))
+    def main():
+        if request.method == 'POST':
+            solos = get_endorsements('solo')
+            t1 = get_endorsements('tier-1')
+            t2 = get_endorsements('tier-2')
+            roster = get_roster()
+            logins = get_logins()
+            datahub = get_station_data()
+            connection = {
+                'cid': int(request.form['cid']),
+                'callsign': request.form['station'],
+                'name': '',
+                'rating': get_rating(int(request.form['cid']))
+            }
+            may_control, _, msg = check_connection(connection, datahub, solos, t1, t2, roster)
+            course_required = is_course_required(request.form['station'])
+            return render_template('main.html', request=request, may_control=may_control, msg=msg, course_required=course_required)
+        else:
+            return render_template('main.html', request=request)
+
+    return app
