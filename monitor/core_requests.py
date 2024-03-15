@@ -27,6 +27,7 @@ def get_endorsements(type: str) -> list[dict]:
               'accept': 'application/json'}
     r = requests.get(f'https://core.vateud.net/api/facility/endorsements/{type}', headers=eud_header)
     print(r)
+    raise BaseException(f'{r}')
     return r.json()['data']
 
 
