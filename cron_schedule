@@ -1,2 +1,2 @@
-cd /opt/monitor
-python -m monitor.monitor_login
+*/5 * * * * cd /opt/monitor && python -m monitor.monitor_login
+0 0 * * * echo "" > /data/monitor/messaged.txt
