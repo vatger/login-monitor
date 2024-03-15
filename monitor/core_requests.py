@@ -24,7 +24,8 @@ def get_station_data() -> list[dict]:
 
 def get_endorsements(type: str) -> list[dict]:
     eud_header = {'X-API-KEY': api_key,
-              'accept': 'application/json'}
+                   'accept': 'application/json',
+                  'User-Agent': 'VATGER'}
     return requests.get(f'https://core.vateud.net/api/facility/endorsements/{type}', headers=eud_header).json()['data']
 
 
