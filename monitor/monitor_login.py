@@ -99,6 +99,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
 
 
 if __name__ == '__main__':
+    print('Running')
     solos = get_endorsements('solo')
     t1 = get_endorsements('tier-1')
     t2 = get_endorsements('tier-2')
@@ -110,6 +111,7 @@ if __name__ == '__main__':
         if not check:
             with open('/data/monitor/messaged.txt', 'r') as f:
                 content = f.read()
+            print(content)
             if not str(login['cid']) in content:
                 send_message(msg)
                 with open('/data/monitor/messaged.txt', 'a') as f:
