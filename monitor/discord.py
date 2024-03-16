@@ -11,6 +11,6 @@ path = os.getenv('DC_PATH')
 def send_message(message: str):
     data = {
         'content': message,
-        'username': 'Login monitor'
+        'username': 'Login Monitor'
     }
     requests.post(path, data)
