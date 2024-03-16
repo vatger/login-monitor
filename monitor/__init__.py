@@ -9,17 +9,23 @@ def create_app():
     @app.route('/', methods=('GET', 'POST'))
     def main():
         if request.method == 'POST':
+            # Check whether ID exists
+            try:
+                rating = get_rating(int(request.form['cid']))
+            except:
+                may_control, msg = False, 'The controller ID seems to be incorrect.'
+            rating = get_rating(int(request.form['cid']))
             solos = get_endorsements('solo')
             t1 = get_endorsements('tier-1')
             t2 = get_endorsements('tier-2')
             roster = get_roster()
-            logins = get_logins()
             datahub = get_station_data()
             connection = {
                 'cid': int(request.form['cid']),
                 'callsign': request.form['station'],
                 'name': '',
-                'rating': get_rating(int(request.form['cid']))
+                'rating': rating,
+                'facility': 5
             }
             may_control, _, msg = check_connection(connection, datahub, solos, t1, t2, roster)
             course_required = is_course_required(request.form['station'])
