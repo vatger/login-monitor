@@ -6,6 +6,7 @@ import os
 load_dotenv()
 
 api_key = os.getenv('CORE_API')
+df_link = os.getenv('DF_LINK')
 
 
 headers = {
@@ -32,7 +33,7 @@ def get_endorsements(type: str) -> list[dict]:
 
 
 def get_logins() -> list[dict]:
-    r = requests.get('http://docker.vatsim-germany.org:8007/datafeed/controllers', headers=headers).json()['data']
+    r = requests.get(df_link, headers=headers).json()['data']
     connections = [x for x in r if (x['callsign'][:2] in ['ED', 'ET'] and x['callsign'][:4] != 'EDYY')]
     return connections
 
