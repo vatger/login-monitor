@@ -28,20 +28,27 @@ def safe_get(data: dict, key: str) -> object:
 
 
 def check_connection(connection: dict, station_data: list[dict], solos: list[dict], t1: list[dict], t2: list[dict], roster: list[dict]) -> [bool, str]:
+    if connection['facility'] == 0:
+        return True, 'OBS', 'OBS'
     user_has_solo = False
     user_has_t1 = False
     station_is_t1 = False
     # Try to get datahub entry from callsign
     if connection['cid'] not in roster:
         return False, f'{connection["cid"], connection["name"]} controlling {connection["callsign"]} not on roster.', 'You may not control this station as you are not on the roster.'
-    try:
-        data = [station for station in station_data if station['logon'] == connection['callsign']][0]
-    except:
-        data = [station for station in station_data if split_compare(station['logon'], connection['callsign'])]
-        if data:
-            data = data[0]
-        else:
-            print(connection)
+    if connection['callsign'].split('_')[-1] != 'CTR':
+        try:
+            data = [station for station in station_data if station['logon'] == connection['callsign']][0]
+        except:
+            data = [station for station in station_data if split_compare(station['logon'], connection['callsign'])]
+            if data:
+                data = data[0]
+            else:
+                return False, f'No station found {connection["callsign"], connection["cid"], connection["name"]}', 'Station not found'
+    else:
+        try:
+            data = [station for station in station_data if station['logon'] == connection['callsign']][0]
+        except:
             return False, f'No station found {connection["callsign"], connection["cid"], connection["name"]}', 'Station not found'
 
     # Rating check
@@ -88,7 +95,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         else:
             return False, f'{connection["cid"], connection["name"]} has neither solo nor tier 1 endorsement for {connection["callsign"]}.', 'You need an endorsement for this station.'
     else:
-        return True, '', f'You may control {connection["callsign"]}.'
+        return True, '', f'You may control {data["logon"]}.'
 
 
 if __name__ == '__main__':
