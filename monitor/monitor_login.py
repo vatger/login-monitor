@@ -98,13 +98,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         return True, '', f'You may control {data["logon"]}.'
 
 
-from dotenv import load_dotenv
-import os
-
-
 if __name__ == '__main__':
-    df_link = os.getenv('DF_LINK')
-    send_message(df_link)
     solos = get_endorsements('solo')
     t1 = get_endorsements('tier-1')
     t2 = get_endorsements('tier-2')
