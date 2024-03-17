@@ -14,7 +14,6 @@ def create_app():
                 rating = get_rating(int(request.form['cid']))
             except:
                 may_control, msg = False, 'The controller ID seems to be incorrect.'
-            rating = get_rating(int(request.form['cid']))
             solos = get_endorsements('solo')
             t1 = get_endorsements('tier-1')
             t2 = get_endorsements('tier-2')
