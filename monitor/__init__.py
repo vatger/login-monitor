@@ -13,21 +13,23 @@ def create_app():
             try:
                 rating = get_rating(int(request.form['cid']))
             except:
+                rating = False
                 may_control, msg = False, 'The controller ID seems to be incorrect.'
-            solos = get_endorsements('solo')
-            t1 = get_endorsements('tier-1')
-            t2 = get_endorsements('tier-2')
-            roster = get_roster()
-            datahub = get_station_data()
-            connection = {
-                'cid': int(request.form['cid']),
-                'callsign': request.form['station'],
-                'name': '',
-                'rating': rating,
-                'facility': 5,
-                'frequency': 'website'
-            }
-            may_control, _, msg = check_connection(connection, datahub, solos, t1, t2, roster)
+            if rating:
+                solos = get_endorsements('solo')
+                t1 = get_endorsements('tier-1')
+                t2 = get_endorsements('tier-2')
+                roster = get_roster()
+                datahub = get_station_data()
+                connection = {
+                    'cid': int(request.form['cid']),
+                    'callsign': request.form['station'].upper(),
+                    'name': '',
+                    'rating': rating,
+                    'facility': 5,
+                    'frequency': 'website'
+                }
+                may_control, _, msg = check_connection(connection, datahub, solos, t1, t2, roster)
             course_required = is_course_required(request.form['station'])
             return render_template('main.html', request=request, may_control=may_control, msg=msg, course_required=course_required)
         else:
