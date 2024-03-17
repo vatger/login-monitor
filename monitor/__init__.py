@@ -25,7 +25,8 @@ def create_app():
                 'callsign': request.form['station'],
                 'name': '',
                 'rating': rating,
-                'facility': 5
+                'facility': 5,
+                'frequency': 'website'
             }
             may_control, _, msg = check_connection(connection, datahub, solos, t1, t2, roster)
             course_required = is_course_required(request.form['station'])

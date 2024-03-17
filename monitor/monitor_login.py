@@ -36,20 +36,15 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
     # Try to get datahub entry from callsign
     if connection['cid'] not in roster:
         return False, f'{connection["cid"], connection["name"]} controlling {connection["callsign"]} not on roster.', 'You may not control this station as you are not on the roster.'
-    if connection['callsign'].split('_')[-1] != 'CTR':
-        try:
-            data = [station for station in station_data if station['logon'] == connection['callsign']][0]
-        except:
-            data = [station for station in station_data if split_compare(station['logon'], connection['callsign'])]
-            if data:
-                data = data[0]
-            else:
-                return False, f'No station found {connection["callsign"], connection["cid"], connection["name"]}', 'Station not found'
+
+    if connection['frequency'] == 'website':
+        data = [station for station in station_data if station['logon'] == connection['callsign']]
     else:
-        try:
-            data = [station for station in station_data if station['logon'] == connection['callsign']][0]
-        except:
-            return False, f'No station found {connection["callsign"], connection["cid"], connection["name"]}', 'Station not found'
+        data = [station for station in station_data if station['logon'][:4] == connection['callsign'][:4] and station['frequency'] == connection['frequency']]
+    if data:
+        data = data[0]
+    else:
+        return False, f'No station found {connection["callsign"], connection["cid"], connection["name"]}', 'Station not found'
 
     # Rating check
     station_type = connection['callsign'].split('_')[-1]
