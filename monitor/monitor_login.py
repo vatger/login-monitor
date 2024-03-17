@@ -30,6 +30,8 @@ def safe_get(data: dict, key: str) -> object:
 def check_connection(connection: dict, station_data: list[dict], solos: list[dict], t1: list[dict], t2: list[dict], roster: list[dict]) -> [bool, str]:
     if connection['facility'] == 0:
         return True, 'OBS', 'OBS'
+    if connection['frequency'] == '199.998':
+        return True, 'No primary', 'No primary'
     user_has_solo = False
     user_has_t1 = False
     station_is_t1 = False
