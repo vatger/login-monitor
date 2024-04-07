@@ -80,15 +80,16 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         user_endorsements = [endorsement for endorsement in t1 if endorsement['user_cid'] == connection['cid']]
         user_has_t1 = False
         for endorsement in user_endorsements:
-            solo_apt, solo_station = endorsement['position'].split('_')[0], endorsement['position'].split('_')[-1]
-            user_apt, user_station = connection['callsign'].split('_')[0], station_type
-            if solo_apt == user_apt:
-                if station_type in ['DEL', 'GND']:
-                    if not user_has_t1:
-                        user_has_t1 = solo_station == 'GNDDEL'
-                else:
-                    if not user_has_t1:
-                        user_has_t1 = user_station == solo_station
+            if station_type in ['DEL', 'GND']:
+                solo_apt, solo_station = endorsement['position'].split('_')[0], endorsement['position'].split('_')[-1]
+                user_apt, user_station = connection['callsign'].split('_')[0], station_type
+                if solo_station == 'GNDDEL' and solo_apt == user_apt:
+                    user_has_t1 = True
+                    break
+            else:
+                if endorsement['position'] == connection['callsign']:
+                    user_has_t1 = True
+                    break
     if station_is_t1:
         if user_has_t1 or user_has_solo:
             return True, '', f'You may control {connection["callsign"]}.'
