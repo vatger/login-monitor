@@ -32,7 +32,7 @@ def create_app():
                 may_control, _, msg = check_connection(connection, datahub, solos, t1, t2, roster)
             course_required = is_course_required(request.form['station'])
             ctr_sector = request.form['station'].upper().split('_')[-1] == 'CTR'
-            fam_msg = ctr_sector and msg != 'You need an endorsement for this station.'
+            fam_msg = ctr_sector and msg != 'You need an endorsement for this station.' and msg != 'Station not found'
             return render_template('main.html', request=request, may_control=may_control, msg=msg, course_required=course_required, fam_msg=fam_msg)
         else:
             return render_template('main.html', request=request)
