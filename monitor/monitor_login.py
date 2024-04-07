@@ -53,7 +53,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
 
     # Rating check
     station_type = connection['callsign'].split('_')[-1]
-    if station_type == 'DEP':
+    if station_type in ['DEP']:
         station_type = 'APP'
     if required_rating[station_type] > connection['rating']:
         # Check for solo endorsement
@@ -84,6 +84,12 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
                 solo_apt, solo_station = endorsement['position'].split('_')[0], endorsement['position'].split('_')[-1]
                 user_apt, user_station = connection['callsign'].split('_')[0], station_type
                 if solo_station == 'GNDDEL' and solo_apt == user_apt:
+                    user_has_t1 = True
+                    break
+            elif station_type in ['TWR', 'APP']:
+                solo_apt, solo_station = endorsement['position'].split('_')[0], endorsement['position'].split('_')[-1]
+                user_apt, user_station = connection['callsign'].split('_')[0], station_type
+                if solo_apt == user_apt and solo_station == user_station:
                     user_has_t1 = True
                     break
             else:
