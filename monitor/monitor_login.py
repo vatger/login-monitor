@@ -119,7 +119,8 @@ if __name__ == '__main__':
     logins = get_logins()
     datahub = get_station_data()
     for login in logins:
-        check, msg, _ = check_connection(login, datahub, solos, t1, t2, roster)
+        if check_obs_and_primary(login):
+            check, msg, _ = check_connection(login, datahub, solos, t1, t2, roster)
         if not check:
             with open('/data/monitor/messaged.txt', 'r') as f:
                 content = f.read()
