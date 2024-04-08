@@ -1,5 +1,6 @@
-from .core_requests import get_station_data, get_endorsements, get_logins, get_roster, split_compare
+from .core_requests import get_station_data, get_endorsements, get_logins, get_roster
 from .discord import send_message
+from .helpers import split_compare
 
 
 ratings = {
@@ -16,6 +17,7 @@ required_rating = {
     'GND': 2,
     'TWR': 3,
     'APP': 4,
+    'DEP': 4,
     'CTR': 5
 }
 
@@ -27,25 +29,35 @@ def safe_get(data: dict, key: str) -> object:
         return False
 
 
-def check_connection(connection: dict, station_data: list[dict], solos: list[dict], t1: list[dict], t2: list[dict], roster: list[dict]) -> [bool, str]:
-    if connection['facility'] == 0:
-        return True, 'OBS', 'OBS'
-    if connection['frequency'] == '199.998':
-        return True, 'No primary', 'No primary'
+def check_obs_and_primary(connection: dict) -> bool:
+    """
+    Checks if the connection needs to be checked, i.e. not observer and primary set
+    """
+    return connection['facility'] != 0 and connection['frequency'] != '199.998'
+
+
+def check_connection(connection: dict, station_data: list[dict], solos: list[dict], t1: list[dict], t2: list[dict],
+                     roster: list[dict]) -> [bool, str, str]:
     # Filter out EDW_APP
     if connection['callsign'] == 'EDW_APP':
         return True, 'EDW_APP', 'EDW_APP'
+
     user_has_solo = False
     user_has_t1 = False
     station_is_t1 = False
-    # Try to get datahub entry from callsign
+
+    # Check whether controller is on roster
     if connection['cid'] not in roster:
         return False, f'{connection["cid"], connection["name"]} controlling {connection["callsign"]} not on roster.', 'You may not control this station as you are not on the roster.'
 
     if connection['frequency'] == 'website':
+        # If function called from website, match station by login
         data = [station for station in station_data if station['logon'] == connection['callsign']]
     else:
+        # Match station by first four letters of callsign (FIR) and primary frequency
         data = [station for station in station_data if station['logon'][:4] == connection['callsign'][:4] and station['frequency'] == connection['frequency']]
+
+    # Check whether station was found
     if data:
         data = data[0]
     else:
@@ -53,23 +65,19 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
 
     # Rating check
     station_type = connection['callsign'].split('_')[-1]
-    if station_type in ['DEP']:
-        station_type = 'APP'
     if required_rating[station_type] > connection['rating']:
         # Check for solo endorsement
+        # Get all solo endorsements of user
         user_solos = [solo for solo in solos if solo['user_cid'] == connection['cid']]
         if user_solos:
-            solo_apt, solo_station = user_solos[0]['position'].split('_')[0], user_solos[0]['position'].split('_')[-1]
-            user_apt, user_station = connection['callsign'].split('_')[0], station_type
-            # Match solo endorsement and user
-            if solo_apt == user_apt and solo_station == user_station:
-                user_has_solo = True
+            user_has_solo = split_compare(user_solos[0]['position'], connection['callsign'])
         elif station_type == 'TWR':
             # Is TWR part of T1 Program?
             if not safe_get(data, 's1_twr') and connection['rating'] == 2:
                 return False, f'{connection["cid"], connection["name"]} controlling TWR {connection["callsign"]} not in S1 TWR Program.', 'This TWR may not be controlled with S1.'
         else:
             return False, f'{connection["cid"], connection["name"]} controlling station {connection["callsign"]} without rating or solo.', 'You need a higher rating to control this position.'
+
     # Restricted station check
     if safe_get(data, 'gcap_status') == 'AFIS':
         user_endorsement = [endorsement for endorsement in t2 if endorsement['user_cid'] == connection['cid'] and endorsement['position'] == 'EDXX_AFIS']
@@ -81,18 +89,16 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         user_has_t1 = False
         for endorsement in user_endorsements:
             if station_type in ['DEL', 'GND']:
-                solo_apt, solo_station = endorsement['position'].split('_')[0], endorsement['position'].split('_')[-1]
-                user_apt, user_station = connection['callsign'].split('_')[0], station_type
-                if solo_station == 'GNDDEL' and solo_apt == user_apt:
+                # Endorsements for DEL and GND are combined as 'GNDDEL', thus need to replace both _GND and _DEL with _GNDDEL
+                if split_compare(endorsement['position'], connection['callsign'].replace("_GND", "_GNDDEL").replace("_DEL", "_GNDDEL")):
                     user_has_t1 = True
                     break
-            elif station_type in ['TWR', 'APP']:
-                solo_apt, solo_station = endorsement['position'].split('_')[0], endorsement['position'].split('_')[-1]
-                user_apt, user_station = connection['callsign'].split('_')[0], station_type
-                if solo_apt == user_apt and solo_station == user_station:
+            elif station_type in ['TWR', 'APP', 'DEP']:
+                if split_compare(endorsement['position'], connection['callsign']):
                     user_has_t1 = True
                     break
             else:
+                # For center, endorsement must match exactly
                 if endorsement['position'] == connection['callsign']:
                     user_has_t1 = True
                     break
