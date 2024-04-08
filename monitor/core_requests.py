@@ -2,6 +2,8 @@ import requests
 from dotenv import load_dotenv
 import os
 
+from .helpers import split_compare
+
 
 load_dotenv()
 
@@ -17,10 +19,6 @@ headers = {
 eud_header = {'X-API-KEY': api_key,
                    'accept': 'application/json',
                   'User-Agent': 'VATGER'}
-
-
-def split_compare(cs1: str, cs2: str) -> [bool, str]:
-    return cs1.split('_')[0] == cs2.split('_')[0] and cs1.split('_')[-1] == cs2.split('_')[-1]
 
 
 def get_station_data() -> list[dict]:
@@ -46,7 +44,6 @@ def get_rating(id: int) -> int:
     return requests.get(f'https://api.vatsim.net/api/ratings/{id}/').json()['rating']
 
 
-def is_course_required(callsign: str) -> bool:
+def required_courses(callsign: str) -> list[dict]:
     courses = requests.get('https://raw.githubusercontent.com/VATGER-ATD/required-courses/main/courses.json').json()
-    required = [course for course in courses if split_compare(callsign, course['station'])]
-    return len(required) > 0
+    return [course for course in courses if split_compare(callsign, course['station'])]
