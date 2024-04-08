@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, get_rating, is_course_required
+from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, get_rating, required_courses
 from .monitor_login import check_connection
 
 
@@ -30,10 +30,10 @@ def create_app():
                     'frequency': 'website'
                 }
                 may_control, _, msg = check_connection(connection, datahub, solos, t1, t2, roster)
-            course_required = is_course_required(request.form['station'].upper())
+            courses = required_courses(request.form['station'].upper())
             ctr_sector = request.form['station'].upper().split('_')[-1] == 'CTR'
             fam_msg = ctr_sector and msg != 'You need an endorsement for this station.' and msg != 'Station not found'
-            return render_template('main.html', request=request, may_control=may_control, msg=msg, course_required=course_required, fam_msg=fam_msg)
+            return render_template('main.html', request=request, may_control=may_control, msg=msg, courses=courses, fam_msg=fam_msg)
         else:
             return render_template('main.html', request=request)
 
