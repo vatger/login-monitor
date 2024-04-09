@@ -1,4 +1,4 @@
-from .core_requests import get_station_data, get_endorsements, get_logins, get_roster
+from .core_requests import get_station_data, get_endorsements, get_logins, get_roster, required_courses
 from .discord import send_message
 from .helpers import split_compare
 
