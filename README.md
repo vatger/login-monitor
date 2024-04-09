@@ -9,7 +9,6 @@ The app additionally provides canistaffit.vatger.de, which allows controllers to
 |         Name         | Responsible for |      Contact       |
 | :------------------: | :-------------: | :----------------: |
 | Felix S. - 1439797   |       *         | `atd[at]vatger.de` |
-| Nikolas G. - 1373921 |       *         | `atd[at]vatger.de` |
 
 ## Prerequisites
 - **Python**
