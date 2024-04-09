@@ -25,10 +25,10 @@
         {% if request.method == 'POST' %}
             <div class="mt-4 mb-4 bg-gray border-2 border-top border-gray"></div>
             <div class="row">
-            <div> {% if may_control %} ✅ {{ msg }} {% else %} ❌ {{ msg }} {% endif %}</div>
-                <div><p>{% if courses and may_control %} <div class="col">⚠️ A Moodle Course is required before you staff this position.
+            <div> {% if out['may_control'] %} ✅ {{ out['website_msg'] }} {% else %} ❌ {{ out['website_msg'] }} {% endif %}</div>
+                <div><p>{% if out['required_courses'] %} <div class="col">
                 <ul>
-                {% for course in courses[0]['courses'] %}
+                {% for course in out['required_courses'] %}
                     <li><a href={{ course['link'] }}>{{ course['name'] }}</a> </li>
                 {% endfor %}
                 </ul>

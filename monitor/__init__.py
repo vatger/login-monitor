@@ -14,7 +14,11 @@ def create_app():
                 rating = get_rating(int(request.form['cid']))
             except:
                 rating = False
-                may_control, msg = False, 'The controller ID seems to be incorrect.'
+                out = {
+                    'may_control': False,
+                    'website_msg': 'The controller ID seems to be incorrect.'
+                }
+                # may_control, msg = False, 'The controller ID seems to be incorrect.'
             if rating:
                 solos = get_endorsements('solo')
                 t1 = get_endorsements('tier-1')
@@ -29,11 +33,12 @@ def create_app():
                     'facility': 5,
                     'frequency': 'website'
                 }
-                may_control, _, msg = check_connection(connection, datahub, solos, t1, t2, roster)
-            courses = required_courses(request.form['station'].upper())
-            ctr_sector = request.form['station'].upper().split('_')[-1] == 'CTR'
-            fam_msg = ctr_sector and msg != 'You need an endorsement for this station.' and msg != 'Station not found'
-            return render_template('main.html', request=request, may_control=may_control, msg=msg, courses=courses, fam_msg=fam_msg)
+                out = check_connection(connection, datahub, solos, t1, t2, roster)
+
+            is_ctr_sector = request.form['station'].upper().split('_')[-1] == 'CTR'
+            fam_msg = is_ctr_sector and out['may_control']
+
+            return render_template('main.html', request=request, out=out, fam_msg=fam_msg)
         else:
             return render_template('main.html', request=request)
 

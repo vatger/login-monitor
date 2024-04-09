@@ -36,11 +36,21 @@ def check_obs_and_primary(connection: dict) -> bool:
     return connection['facility'] != 0 and connection['frequency'] != '199.998'
 
 
+def output_dict(may_control: bool, discord_msg: str, website_msg: str, required_courses: list[dict] = []) -> dict:
+    output = {
+        'may_control': may_control,
+        'discord_msg': discord_msg,
+        'website_msg': website_msg,
+        'required_courses': required_courses
+    }
+    return output
+
+
 def check_connection(connection: dict, station_data: list[dict], solos: list[dict], t1: list[dict], t2: list[dict],
-                     roster: list[dict]) -> [bool, str, str]:
+                     roster: list[dict]) -> dict:
     # Filter out EDW_APP
     if connection['callsign'] == 'EDW_APP':
-        return True, 'EDW_APP', 'EDW_APP'
+        return output_dict(True, 'EDW_APP', 'EDW_APP')
 
     user_has_solo = False
     user_has_t1 = False
@@ -48,7 +58,9 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
 
     # Check whether controller is on roster
     if connection['cid'] not in roster:
-        return False, f'{connection["cid"], connection["name"]} controlling {connection["callsign"]} not on roster.', 'You may not control this station as you are not on the roster.'
+        return output_dict(False,
+                           f'{connection["cid"], connection["name"]} controlling {connection["callsign"]} not on roster.',
+                           'You may not control this station as you are not on the roster.')
 
     if connection['frequency'] == 'website':
         # If function called from website, match station by login
@@ -61,8 +73,10 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
     if data:
         data = data[0]
     else:
-        return False, f'No station found {connection["callsign"], connection["cid"], connection["name"]}', 'Station not found'
-    print(data)
+        return output_dict(False,
+                           f'No station found {connection["callsign"], connection["cid"], connection["name"]}',
+                           'Station not found')
+
     # Rating check
     station_type = data['logon'].split('_')[-1]
     if required_rating[station_type] > connection['rating']:
@@ -74,7 +88,9 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         elif station_type == 'TWR':
             # Is TWR part of T1 Program?
             if not safe_get(data, 's1_twr') and connection['rating'] == 2:
-                return False, f'{connection["cid"], connection["name"]} controlling TWR {connection["callsign"]} not in S1 TWR Program.', 'This TWR may not be controlled with S1.'
+                return output_dict(False,
+                                   f'{connection["cid"], connection["name"]} controlling TWR {connection["callsign"]} not in S1 TWR Program.',
+                                   'This TWR may not be controlled with S1.')
         else:
             return False, f'{connection["cid"], connection["name"]} controlling station {connection["callsign"]} without rating or solo.', 'You need a higher rating to control this position.'
 
@@ -82,7 +98,9 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
     if safe_get(data, 'gcap_status') == 'AFIS':
         user_endorsement = [endorsement for endorsement in t2 if endorsement['user_cid'] == connection['cid'] and endorsement['position'] == 'EDXX_AFIS']
         if not user_endorsement:
-            return False, f'{connection["cid"], connection["name"]} has no AFIS endorsement for {connection["callsign"]}.', 'You need an AFIS endorsement to control this position.'
+            return output_dict(False,
+                               f'{connection["cid"], connection["name"]} has no AFIS endorsement for {connection["callsign"]}.',
+                               'You need an AFIS endorsement to control this position.')
     elif safe_get(data, 'gcap_status') == '1':
         station_is_t1 = True
         user_endorsements = [endorsement for endorsement in t1 if endorsement['user_cid'] == connection['cid']]
@@ -104,11 +122,13 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
                     break
     if station_is_t1:
         if user_has_t1 or user_has_solo:
-            return True, '', f'You may control {connection["callsign"]}.'
+            return output_dict(True, '', f'You may control {connection["callsign"]}.')
         else:
-            return False, f'{connection["cid"], connection["name"]} has neither solo nor tier 1 endorsement for {connection["callsign"]}.', 'You need an endorsement for this station.'
+            return output_dict(False,
+                               f'{connection["cid"], connection["name"]} has neither solo nor tier 1 endorsement for {connection["callsign"]}.',
+                               'You need an endorsement for this station.')
     else:
-        return True, '', f'You may control {data["logon"]}.'
+        return output_dict(True, '', f'You may control {data["logon"]}.')
 
 
 if __name__ == '__main__':
@@ -120,7 +140,8 @@ if __name__ == '__main__':
     datahub = get_station_data()
     for login in logins:
         if check_obs_and_primary(login):
-            check, msg, _ = check_connection(login, datahub, solos, t1, t2, roster)
+            out = check_connection(login, datahub, solos, t1, t2, roster)
+            check, msg = out['may_control'], out['discord_msg']
         if not check:
             with open('/data/monitor/messaged.txt', 'r') as f:
                 content = f.read()
