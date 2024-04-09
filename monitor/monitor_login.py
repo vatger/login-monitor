@@ -92,7 +92,17 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
                                    f'{connection["cid"], connection["name"]} controlling TWR {connection["callsign"]} not in S1 TWR Program.',
                                    'This TWR may not be controlled with S1.')
         else:
-            return False, f'{connection["cid"], connection["name"]} controlling station {connection["callsign"]} without rating or solo.', 'You need a higher rating to control this position.'
+            return output_dict(False,
+                               f'{connection["cid"], connection["name"]} controlling station {connection["callsign"]} without rating or solo.',
+                               'You need a higher rating to control this position.')
+
+    # Check for required courses
+    courses = required_courses(data['logon'], connection['cid'])
+    if courses:
+        return output_dict(False,
+                           f'{connection["cid"], connection["name"]} controlling station '
+                           f'{connection["callsign"]} without required Moodle courses.',
+                           'Before you control, you need to pass the following courses:', required_courses=courses)
 
     # Restricted station check
     if safe_get(data, 'gcap_status') == 'AFIS':
