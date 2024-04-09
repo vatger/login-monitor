@@ -62,15 +62,15 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         data = data[0]
     else:
         return False, f'No station found {connection["callsign"], connection["cid"], connection["name"]}', 'Station not found'
-
+    print(data)
     # Rating check
-    station_type = connection['callsign'].split('_')[-1]
+    station_type = data['logon'].split('_')[-1]
     if required_rating[station_type] > connection['rating']:
         # Check for solo endorsement
         # Get all solo endorsements of user
         user_solos = [solo for solo in solos if solo['user_cid'] == connection['cid']]
         if user_solos:
-            user_has_solo = split_compare(user_solos[0]['position'], connection['callsign'])
+            user_has_solo = split_compare(user_solos[0]['position'], data['logon'])
         elif station_type == 'TWR':
             # Is TWR part of T1 Program?
             if not safe_get(data, 's1_twr') and connection['rating'] == 2:
@@ -90,16 +90,16 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         for endorsement in user_endorsements:
             if station_type in ['DEL', 'GND']:
                 # Endorsements for DEL and GND are combined as 'GNDDEL', thus need to replace both _GND and _DEL with _GNDDEL
-                if split_compare(endorsement['position'], connection['callsign'].replace("_GND", "_GNDDEL").replace("_DEL", "_GNDDEL")):
+                if split_compare(endorsement['position'], data['logon'].replace("_GND", "_GNDDEL").replace("_DEL", "_GNDDEL")):
                     user_has_t1 = True
                     break
             elif station_type in ['TWR', 'APP', 'DEP']:
-                if split_compare(endorsement['position'], connection['callsign']):
+                if split_compare(endorsement['position'], data['logon']):
                     user_has_t1 = True
                     break
             else:
                 # For center, endorsement must match exactly
-                if endorsement['position'] == connection['callsign']:
+                if endorsement['position'] == data['logon']:
                     user_has_t1 = True
                     break
     if station_is_t1:
