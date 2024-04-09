@@ -9,6 +9,8 @@ load_dotenv()
 
 api_key = os.getenv('CORE_API')
 df_link = os.getenv('DF_LINK')
+moodle_auth = os.getenv('MOODLE_AUTH')
+moodle_link = os.getenv('MOODLE_LINK')
 
 
 headers = {
@@ -44,6 +46,32 @@ def get_rating(id: int) -> int:
     return requests.get(f'https://api.vatsim.net/api/ratings/{id}/').json()['rating']
 
 
-def required_courses(callsign: str) -> list[dict]:
+def check_course_completion(course: dict, cid: int) -> bool:
+    course_id = course['link'].split('id=')[-1]
+    headers = {
+        'Authorization': moodle_auth
+    }
+    request = requests.get(
+        f'{moodle_link}/quiz_completed?module_id={course_id}&user_id={cid}',
+        headers=headers).json()
+    if request:
+        completion_state = request[0]['completionstate']
+        if completion_state == 2:
+            return True
+    return False
+
+
+def required_courses(callsign: str, cid: int) -> list[dict]:
+    """
+
+    :param callsign: Callsign of station
+    :param cid: Controller ID
+    :return: Dict of required courses that have not been passed
+    """
     courses = requests.get('https://raw.githubusercontent.com/VATGER-ATD/required-courses/main/courses.json').json()
-    return [course for course in courses if split_compare(callsign, course['station'])]
+    res = [course for course in courses if split_compare(callsign, course['station'])]
+    if res:
+        courses = res[0]['courses']
+        return [course for course in courses if not check_course_completion(course, cid)]
+    else:
+        return []
