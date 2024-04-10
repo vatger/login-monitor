@@ -51,6 +51,7 @@ def check_course_completion(course: dict, cid: int) -> bool:
     headers = {
         'Authorization': moodle_auth
     }
+    return False
     request = requests.get(
         f'{moodle_link}/module_completed?module_id={course_id}&user_id={cid}',
         headers=headers).json()
