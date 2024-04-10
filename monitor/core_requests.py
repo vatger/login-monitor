@@ -16,9 +16,11 @@ headers = {
     'Accept': 'application/json'
 }
 
-eud_header = {'X-API-KEY': api_key,
-              'accept': 'application/json',
-              'User-Agent': 'VATGER'}
+eud_header = {
+    'X-API-KEY': api_key,
+    'Accept': 'application/json',
+    'User-Agent': 'VATGER'
+}
 
 
 @cached(cache=TTLCache(maxsize=float('inf'), ttl=60*60*12))
