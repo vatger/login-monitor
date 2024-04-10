@@ -52,13 +52,13 @@ def get_rating(id: int) -> int:
     return requests.get(f'https://api.vatsim.net/api/ratings/{id}/').json()['rating']
 
 
-@cached(cache=TTLCache(maxsize=float('inf'), ttl=60))
+#@cached(cache=TTLCache(maxsize=float('inf'), ttl=60))
 def check_course_completion(course: dict, cid: int) -> bool:
+    return False
     course_id = course['link'].split('id=')[-1]
     headers = {
         'Authorization': moodle_auth
     }
-    return False
     request = requests.get(
         f'{moodle_link}/module_completed?module_id={course_id}&user_id={cid}',
         headers=headers).json()
