@@ -59,7 +59,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
     # Check whether controller is on roster
     if connection['cid'] not in roster:
         return output_dict(False,
-                           f'{connection["cid"], connection["name"]} controlling {connection["callsign"]} not on roster.',
+                           f'Someone is controlling {connection["callsign"]} not on roster.',
                            'You may not control this station as you are not on the roster.')
 
     if connection['frequency'] == 'website':
@@ -89,18 +89,18 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
             # Is TWR part of T1 Program?
             if not safe_get(data, 's1_twr') and connection['rating'] == 2:
                 return output_dict(False,
-                                   f'{connection["cid"], connection["name"]} controlling TWR {connection["callsign"]} not in S1 TWR Program.',
+                                   f'Someone is controlling TWR {connection["callsign"]} not in S1 TWR Program.',
                                    'This TWR may not be controlled with S1.')
         else:
             return output_dict(False,
-                               f'{connection["cid"], connection["name"]} controlling station {connection["callsign"]} without rating or solo.',
+                               f'Someone is controlling station {connection["callsign"]} without rating or solo.',
                                'You need a higher rating to control this position.')
 
     # Check for required courses
     courses = required_courses(data['logon'], connection['cid'])
     if courses:
         return output_dict(True,
-                           f'{connection["cid"], connection["name"]} controlling station '
+                           f'Someone is controlling station '
                            f'{connection["callsign"]} without required Moodle courses.',
                            'Before you control, you need to pass the following courses:', required_courses=courses)
 
@@ -109,7 +109,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         user_endorsement = [endorsement for endorsement in t2 if endorsement['user_cid'] == connection['cid'] and endorsement['position'] == 'EDXX_AFIS']
         if not user_endorsement:
             return output_dict(False,
-                               f'{connection["cid"], connection["name"]} has no AFIS endorsement for {connection["callsign"]}.',
+                               f'Someone has no AFIS endorsement for {connection["callsign"]}.',
                                'You need an AFIS endorsement to control this position.')
     elif safe_get(data, 'gcap_status') == '1':
         station_is_t1 = True
@@ -135,7 +135,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
             return output_dict(True, '', f'You may control {connection["callsign"]}.')
         else:
             return output_dict(False,
-                               f'{connection["cid"], connection["name"]} has neither solo nor tier 1 endorsement for {connection["callsign"]}.',
+                               f'Someone has neither solo nor tier 1 endorsement for {connection["callsign"]}.',
                                'You need an endorsement for this station.')
     else:
         return output_dict(True, '', f'You may control {data["logon"]}.')
