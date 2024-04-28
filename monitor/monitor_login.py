@@ -85,6 +85,10 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         user_solos = [solo for solo in solos if solo['user_cid'] == connection['cid']]
         if user_solos:
             user_has_solo = split_compare(user_solos[0]['position'], data['logon'])
+            if not user_has_solo:
+                return output_dict(False,
+                                   f'Someone is controlling station {connection["callsign"]} without rating or solo.',
+                                   'You need a higher rating to control this position.')
         elif station_type == 'TWR':
             # Is TWR part of T1 Program?
             if not safe_get(data, 's1_twr') and connection['rating'] == 2:
