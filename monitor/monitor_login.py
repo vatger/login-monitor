@@ -74,7 +74,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         data = data[0]
     else:
         return output_dict(False,
-                           f'No station found {connection["callsign"], connection["cid"], connection["name"]}',
+                           f'No station found {connection["callsign"]}',
                            'Station not found')
 
     # Rating check
