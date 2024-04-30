@@ -14,7 +14,7 @@ oauth_host = os.getenv('OAUTH_HOST')
 
 def login_url():
     id = os.environ['OAUTH_CLIENT_ID']
-    redirect_url = quote_plus(f'{os.getenv('APP_URL')}/callback')
+    redirect_url = quote_plus(f'{os.getenv("APP_URL")}/callback')
     url = f"{oauth_host}/oauth/authorize?client_id={id}&response_type=code&redirect_uri={redirect_url}&scope={'full_name'}"
     return url
 
@@ -73,7 +73,7 @@ def create_app():
             'client_id': os.environ['OAUTH_CLIENT_ID'],
             'client_secret': os.environ['OAUTH_CLIENT_SECRET'],
             'code': code,
-            'redirect_uri': f'{os.getenv('APP_URL')}/callback'
+            'redirect_uri': f'{os.getenv("APP_URL")}/callback'
         }
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
