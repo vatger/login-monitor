@@ -103,7 +103,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
     # Check for required courses
     courses = required_courses(data['logon'], connection['cid'])
     if courses:
-        return output_dict(True,
+        return output_dict(False,
                            f'Someone is controlling station '
                            f'{connection["callsign"]} without required Moodle courses.',
                            'Before you control, you need to pass the following courses:', required_courses=courses)
