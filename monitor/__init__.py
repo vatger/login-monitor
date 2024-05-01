@@ -95,6 +95,7 @@ def create_app():
 
     @app.route('/logout')
     def logout():
+        print(session)
         session.clear()
         return redirect(url_for('main'))
 
