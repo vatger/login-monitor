@@ -92,4 +92,10 @@ def create_app():
         session['user_id'] = response.json()['data']['cid']
         session['user_name'] = response.json()['data']['personal']['name_first']
         return redirect(url_for('main'))
+
+    @app.route('/logout')
+    def logout():
+        session.clear()
+        return redirect(url_for('main'))
+
     return app
