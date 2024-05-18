@@ -55,6 +55,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
     user_has_solo = False
     user_has_t1 = False
     station_is_t1 = False
+    t1_twr = False
 
     # Check whether controller is on roster
     if connection['cid'] not in roster:
@@ -85,20 +86,14 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         user_solos = [solo for solo in solos if solo['user_cid'] == connection['cid']]
         if user_solos:
             user_has_solo = split_compare(user_solos[0]['position'], data['logon'])
-            if not user_has_solo:
-                return output_dict(False,
+        if station_type == 'TWR':
+            # Is TWR part of T1 Program?
+            if safe_get(data, 's1_twr') and connection['rating'] == 2:
+                t1_twr = True
+        if not user_has_solo and not t1_twr:
+            return output_dict(False,
                                    f'Someone is controlling station {connection["callsign"]} without rating or solo.',
                                    'You need a higher rating to control this position.')
-        elif station_type == 'TWR':
-            # Is TWR part of T1 Program?
-            if not safe_get(data, 's1_twr') and connection['rating'] == 2:
-                return output_dict(False,
-                                   f'Someone is controlling TWR {connection["callsign"]} not in S1 TWR Program.',
-                                   'This TWR may not be controlled with S1.')
-        else:
-            return output_dict(False,
-                               f'Someone is controlling station {connection["callsign"]} without rating or solo.',
-                               'You need a higher rating to control this position.')
 
     # Check for required courses
     courses = required_courses(data['logon'], connection['cid'])
