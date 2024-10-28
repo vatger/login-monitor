@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-oauth_auth = os.getenv('OAUTH_HOST')
+oauth_auth = os.getenv('OAUTH_AUTH')
 oauth_user = os.getenv('OAUTH_USER')
 oauth_token = os.getenv('OAUTH_TOKEN')
 oauth_scopes = os.getenv('OAUTH_SCOPES')
