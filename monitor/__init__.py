@@ -9,13 +9,15 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-oauth_host = os.getenv('OAUTH_HOST')
-
+oauth_auth = os.getenv('OAUTH_HOST')
+oauth_user = os.getenv('OAUTH_USER')
+oauth_token = os.getenv('OAUTH_TOKEN')
+oauth_scopes = os.getenv('OAUTH_SCOPES')
 
 def login_url():
     id = os.environ['OAUTH_CLIENT_ID']
     redirect_url = quote_plus(f'{os.getenv("APP_URL")}/callback')
-    url = f"{oauth_host}/oauth/authorize?client_id={id}&response_type=code&redirect_uri={redirect_url}&scope={'full_name'}"
+    url = f"{oauth_auth}?client_id={id}&response_type=code&redirect_uri={redirect_url}&scope={oauth_scopes}"
     return url
 
 
@@ -67,7 +69,7 @@ def create_app():
     def callback():
         session.clear()
         code = request.args.get('code')
-        auth_url = f"{oauth_host}/oauth/token"
+        auth_url = f"{oauth_token}"
         payload = {
             'grant_type': 'authorization_code',
             'client_id': os.environ['OAUTH_CLIENT_ID'],
@@ -86,7 +88,7 @@ def create_app():
             'Accept': 'application/json',
             'Authorization': f'Bearer {response.json()["access_token"]}'
         }
-        response = requests.request("GET", f"{oauth_host}/api/user", headers=headers)
+        response = requests.request("GET", f"{oauth_user}", headers=headers)
         if response.status_code != 200:
             return redirect(url_for('main'))
         session['user_id'] = response.json()['data']['cid']
