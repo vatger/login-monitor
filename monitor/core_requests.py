@@ -24,7 +24,7 @@ eud_header = {
 @cached(cache=TTLCache(maxsize=float("inf"), ttl=60 * 60 * 12))
 def get_station_data() -> list[dict]:
     r = requests.get(
-        "https://raw.githubusercontent.com/VATGER-Nav/datahub/main/data.json",
+        "https://raw.githubusercontent.com/VATGER-Nav/datahub/production/api/stations.json",
         headers=headers,
     )
     return r.json()
