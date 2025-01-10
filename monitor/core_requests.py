@@ -57,7 +57,7 @@ def check_course_completion(course: dict, cid: int) -> bool:
     course_id = course['link'].split('id=')[-1]
     header = {"Authorization": f"Token {vatger_api_token}"}
     r = requests.get(
-        f"{vatger_api_base}moodle/course/{course_id}/user/{cid}/results",
+        f"{vatger_api_base}moodle/course/{course_id}/user/{cid}/completion",
         headers=header,
     ).json()
     try:
