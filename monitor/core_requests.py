@@ -9,8 +9,9 @@ load_dotenv()
 
 api_key = os.getenv('CORE_API')
 df_link = os.getenv('DF_LINK')
-moodle_auth = os.getenv('MOODLE_AUTH')
-moodle_link = os.getenv('MOODLE_LINK')
+
+vatger_api_base = os.getenv('VATGER_API_BASE')
+vatger_api_token = os.getenv('VATGER_API_TOKEN')
 
 headers = {
     'Accept': 'application/json'
@@ -54,17 +55,15 @@ def get_rating(id: int) -> int:
 
 def check_course_completion(course: dict, cid: int) -> bool:
     course_id = course['link'].split('id=')[-1]
-    headers = {
-        'Authorization': moodle_auth
-    }
-    request = requests.get(
-        f'{moodle_link}/module_completed?module_id={course_id}&user_id={cid}',
-        headers=headers).json()
-    if request:
-        completion_state = request[0]['completionstate']
-        if completion_state == 2:
-            return True
-    return False
+    header = {"Authorization": f"Token {vatger_api_token}"}
+    r = requests.get(
+        f"{vatger_api_base}moodle/course/{course_id}/user/{cid}/results",
+        headers=header,
+    ).json()
+    try:
+        return r["completed"]
+    except:
+        return False
 
 
 @cached(cache=TTLCache(maxsize=float('inf'), ttl=60*60))
