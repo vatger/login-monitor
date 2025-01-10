@@ -53,15 +53,15 @@ def get_rating(id: int) -> int:
     return requests.get(f'https://api.vatsim.net/api/ratings/{id}/').json()['rating']
 
 
-def check_course_completion(course: dict, cid: int) -> bool:
-    course_id = course['link'].split('id=')[-1]
+def check_quiz_completion(course: dict, cid: int) -> bool:
+    course_module_id = course['link'].split('id=')[-1]
     header = {"Authorization": f"Token {vatger_api_token}"}
     r = requests.get(
-        f"{vatger_api_base}moodle/course/{course_id}/user/{cid}/completion",
+        f"{vatger_api_base}moodle/activity/{course_module_id}/user/{cid}/completion",
         headers=header,
     ).json()
     try:
-        return r["completed"]
+        return r["isoverallcomplete"]
     except:
         return False
 
@@ -78,6 +78,6 @@ def required_courses(callsign: str, cid: int) -> list[dict]:
     res = [course for course in courses if split_compare(callsign, course['station'])]
     if res:
         courses = res[0]['courses']
-        return [course for course in courses if not check_course_completion(course, cid)]
+        return [course for course in courses if not check_quiz_completion(course, cid)]
     else:
         return []
