@@ -24,7 +24,7 @@ eud_header = {
 }
 
 
-@cached(cache=TTLCache(maxsize=float('inf'), ttl=60*60*12))
+@cached(cache=TTLCache(maxsize=float('inf'), ttl=60*60))
 def get_station_data() -> list[dict]:
     r = requests.get("https://raw.githubusercontent.com/VATGER-Nav/datahub/production/api/stations.json", headers=headers)
     return r.json()
@@ -35,7 +35,7 @@ def get_endorsements(type: str) -> list[dict]:
     return requests.get(f'https://core.vateud.net/api/facility/endorsements/{type}', headers=eud_header).json()['data']
 
 
-@cached(cache=TTLCache(maxsize=float('inf'), ttl=60*60))
+@cached(cache=TTLCache(maxsize=float('inf'), ttl=60*10))
 def get_logins() -> list[dict]:
     r = requests.get(df_link, headers=headers).json()['data']
     connections = [x for x in r if (x['callsign'][:2] in ['ED', 'ET'] and x['callsign'][:4] != 'EDYY')]
@@ -66,7 +66,7 @@ def check_quiz_completion(course: dict, cid: int) -> bool:
         return False
 
 
-@cached(cache=TTLCache(maxsize=float('inf'), ttl=60*60))
+@cached(cache=TTLCache(maxsize=float('inf'), ttl=60*10))
 def required_courses(callsign: str, cid: int) -> list[dict]:
     """
 
