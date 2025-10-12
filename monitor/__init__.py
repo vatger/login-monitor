@@ -33,16 +33,18 @@ def create_app():
         if user_id is None:
             return redirect(login_url())
         cid = int(user_id)
-        try:
-            rating = get_rating(cid)
-        except:
-            rating = False
-            out = {
-                'may_control': False,
-                'website_msg': 'The controller ID seems to be incorrect.'
-            }
-
-        if station:
+        if request.method == 'POST' or station:
+            callsign = station.upper() if station and request.method == "GET" else request.form['station'].upper()
+            # Check whether ID exists
+            try:
+                rating = get_rating(cid)
+            except:
+                rating = False
+                out = {
+                    'may_control': False,
+                    'website_msg': 'The controller ID seems to be incorrect.'
+                }
+                # may_control, msg = False, 'The controller ID seems to be incorrect.'
             if rating:
                 solos = get_endorsements('solo')
                 t1 = get_endorsements('tier-1')
@@ -51,7 +53,7 @@ def create_app():
                 datahub = get_station_data()
                 connection = {
                     'cid': cid,
-                    'callsign': station.upper(),
+                    'callsign': callsign,
                     'name': '',
                     'rating': rating,
                     'facility': 5,
@@ -59,29 +61,7 @@ def create_app():
                 }
                 out = check_connection(connection, datahub, solos, t1, t2, roster)
 
-                is_ctr_sector = station.upper().split('_')[-1] == 'CTR'
-                fam_msg = is_ctr_sector and out['may_control']
-                return render_template('main.html', request=request, out=out, fam_msg=fam_msg,
-                                       name=station + out)#session.get('user_name'))
-
-        if request.method == 'POST':
-            if rating:
-                solos = get_endorsements('solo')
-                t1 = get_endorsements('tier-1')
-                t2 = get_endorsements('tier-2')
-                roster = get_roster()
-                datahub = get_station_data()
-                connection = {
-                    'cid': cid,
-                    'callsign': request.form['station'].upper(),
-                    'name': '',
-                    'rating': rating,
-                    'facility': 5,
-                    'frequency': 'website'
-                }
-                out = check_connection(connection, datahub, solos, t1, t2, roster)
-
-            is_ctr_sector = request.form['station'].upper().split('_')[-1] == 'CTR'
+            is_ctr_sector = callsign.split('_')[-1] == 'CTR'
             fam_msg = is_ctr_sector and out['may_control']
 
             return render_template('main.html', request=request, out=out, fam_msg=fam_msg, name=session.get('user_name'))
