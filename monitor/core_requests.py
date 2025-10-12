@@ -26,7 +26,7 @@ eud_header = {
 
 @cached(cache=TTLCache(maxsize=float('inf'), ttl=60*5))
 def get_theory_roster() -> list[int]:
-    url = "docker.vatsim-germany.org:8016/roster/"
+    url = "http://docker.vatsim-germany.org:8016/roster/"
     s1_header = {
         "Authorization": f"Token {roster_key}"
     }
