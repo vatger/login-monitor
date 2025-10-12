@@ -62,7 +62,7 @@ def create_app():
                 is_ctr_sector = station.upper().split('_')[-1] == 'CTR'
                 fam_msg = is_ctr_sector and out['may_control']
                 return render_template('main.html', request=request, out=out, fam_msg=fam_msg,
-                                       name=session.get('user_name'))
+                                       name=station)#session.get('user_name'))
 
         if request.method == 'POST':
             if rating:
