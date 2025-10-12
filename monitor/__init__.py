@@ -34,6 +34,7 @@ def create_app():
             return redirect(login_url())
         cid = int(user_id)
         if request.method == 'POST' or station:
+            callsign = station.upper() if station and request.method == "GET" else request.form['station'].upper()
             # Check whether ID exists
             try:
                 rating = get_rating(cid)
@@ -52,7 +53,7 @@ def create_app():
                 datahub = get_station_data()
                 connection = {
                     'cid': cid,
-                    'callsign': station.upper() if station else request.form['station'].upper(),
+                    'callsign': callsign,
                     'name': '',
                     'rating': rating,
                     'facility': 5,
@@ -60,7 +61,7 @@ def create_app():
                 }
                 out = check_connection(connection, datahub, solos, t1, t2, roster)
 
-            is_ctr_sector = request.form['station'].upper().split('_')[-1] == 'CTR'
+            is_ctr_sector = callsign.split('_')[-1] == 'CTR'
             fam_msg = is_ctr_sector and out['may_control']
 
             return render_template('main.html', request=request, out=out, fam_msg=fam_msg, name=session.get('user_name'))
