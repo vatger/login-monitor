@@ -37,7 +37,7 @@ def get_theory_roster() -> list[int]:
         return data.get("entries", [])
     else:
         print(f"Error: {response.status_code} - {response.text}")
-        return None
+        return f"Error: {response.status_code} - {response.text}"
 
 @cached(cache=TTLCache(maxsize=float('inf'), ttl=60*60))
 def get_station_data() -> list[dict]:
