@@ -9,6 +9,7 @@ load_dotenv()
 
 api_key = os.getenv('CORE_API')
 df_link = os.getenv('DF_LINK')
+roster_key = os.getenv('ROSTER_KEY')
 
 vatger_api_base = os.getenv('VATGER_API_BASE')
 vatger_api_token = os.getenv('VATGER_API_TOKEN')
@@ -23,6 +24,20 @@ eud_header = {
     'User-Agent': 'VATGER'
 }
 
+@cached(cache=TTLCache(maxsize=float('inf'), ttl=60*5))
+def get_theory_roster() -> list[int]:
+    url = "docker.vatsim-germany.org:8016/roster/"
+    s1_header = {
+        "Authorization": f"Token {roster_key}"
+    }
+    response = requests.get(url, headers=s1_header)
+
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("entries", [])
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return None
 
 @cached(cache=TTLCache(maxsize=float('inf'), ttl=60*60))
 def get_station_data() -> list[dict]:

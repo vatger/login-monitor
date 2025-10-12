@@ -3,7 +3,7 @@ import requests
 from urllib.parse import quote_plus
 
 from flask import Flask, render_template, request, session, redirect, url_for
-from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, get_rating, required_courses
+from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, get_rating, required_courses, get_theory_roster
 from .monitor_login import check_connection
 from dotenv import load_dotenv
 
@@ -24,9 +24,10 @@ def login_url():
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.secret_key = os.environ['FLASK_SECRET_KEY']
-
     @app.route('/', methods=('GET', 'POST'))
     def main():
+        tr = get_theory_roster()
+
         user_id = session.get('user_id')
         if user_id is None:
             return redirect(login_url())
@@ -61,9 +62,9 @@ def create_app():
             is_ctr_sector = request.form['station'].upper().split('_')[-1] == 'CTR'
             fam_msg = is_ctr_sector and out['may_control']
 
-            return render_template('main.html', request=request, out=out, fam_msg=fam_msg, name=session.get('user_name'))
+            return render_template('main.html', request=request, out=out, fam_msg=fam_msg, name=session.get('user_name'), tr=tr)
         else:
-            return render_template('main.html', request=request, name=session.get('user_name'))
+            return render_template('main.html', request=request, name=session.get('user_name'), tr=tr)
 
     @app.route('/callback')
     def callback():
