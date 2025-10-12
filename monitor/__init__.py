@@ -86,7 +86,7 @@ def create_app():
 
             return render_template('main.html', request=request, out=out, fam_msg=fam_msg, name=session.get('user_name'))
         else:
-            return render_template('main.html', request=request, name=session.get('user_name'))
+            return render_template('main.html', request=request, name=station)#session.get('user_name'))
 
     @app.route('/callback')
     def callback():
