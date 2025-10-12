@@ -17,7 +17,7 @@
             <input class="btn btn-primary mt-4" type="submit" value="Submit">
         </form>
 
-        {% if request.method == 'POST' %}
+        {% if out %}
             <div class="mt-4 mb-4 bg-gray border-2 border-top border-gray"></div>
             <div class="row">
             <div> {% if out['may_control'] %} ✅ {{ out['website_msg'] }} {% else %} ❌ {{ out['website_msg'] }} {% endif %}</div>
