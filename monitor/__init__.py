@@ -25,7 +25,7 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.secret_key = os.environ['FLASK_SECRET_KEY']
     @app.route('/', methods=('GET', 'POST'))
-    @app.route('/<station>', methods=['GET', 'POST'])
+    @app.route('/<station>', methods=('GET', 'POST'))
     def main(station=None):
         tr = get_theory_roster()
 
@@ -34,6 +34,7 @@ def create_app():
             return redirect(login_url())
         cid = int(user_id)
         if request.method == 'POST' or station:
+            print(request.method, station)
             callsign = station.upper() if station and request.method == "GET" else request.form['station'].upper()
             # Check whether ID exists
             try:
