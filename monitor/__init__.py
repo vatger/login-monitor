@@ -25,7 +25,8 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.secret_key = os.environ['FLASK_SECRET_KEY']
     @app.route('/', methods=('GET', 'POST'))
-    def main():
+    @app.route('/<station>', methods=['GET', 'POST'])
+    def main(station=None):
         tr = get_theory_roster()
 
         user_id = session.get('user_id')
@@ -51,7 +52,7 @@ def create_app():
                 datahub = get_station_data()
                 connection = {
                     'cid': cid,
-                    'callsign': request.form['station'].upper(),
+                    'callsign': station.upper() if station else request.form['station'].upper(),
                     'name': '',
                     'rating': rating,
                     'facility': 5,
@@ -62,9 +63,9 @@ def create_app():
             is_ctr_sector = request.form['station'].upper().split('_')[-1] == 'CTR'
             fam_msg = is_ctr_sector and out['may_control']
 
-            return render_template('main.html', request=request, out=out, fam_msg=fam_msg, name=session.get('user_name'), tr=tr)
+            return render_template('main.html', request=request, out=out, fam_msg=fam_msg, name=session.get('user_name'))
         else:
-            return render_template('main.html', request=request, name=session.get('user_name'), tr=tr)
+            return render_template('main.html', request=request, name=session.get('user_name'))
 
     @app.route('/callback')
     def callback():
