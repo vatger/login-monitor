@@ -33,7 +33,7 @@ def create_app():
         if user_id is None:
             return redirect(login_url())
         cid = int(user_id)
-        if request.method == 'POST':
+        if request.method == 'POST' or station:
             # Check whether ID exists
             try:
                 rating = get_rating(cid)
