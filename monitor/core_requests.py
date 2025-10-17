@@ -24,7 +24,6 @@ eud_header = {
     'User-Agent': 'VATGER'
 }
 
-# @cached(cache=TTLCache(maxsize=float('inf'), ttl=60*5))
 def get_theory_roster() -> list[int]:
     url = "http://docker.vatsim-germany.org:8016/roster/"
     s1_header = {
