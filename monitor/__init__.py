@@ -59,7 +59,7 @@ def create_app():
                     'facility': 5,
                     'frequency': 'website'
                 }
-                out = check_connection(connection, datahub, solos, t1, t2, roster)
+                out = check_connection(connection, datahub, solos, t1, t2, roster, tr)
 
             is_ctr_sector = callsign.split('_')[-1] == 'CTR'
             fam_msg = is_ctr_sector and out['may_control']
