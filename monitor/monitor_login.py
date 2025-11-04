@@ -1,4 +1,4 @@
-from .core_requests import get_station_data, get_endorsements, get_logins, get_roster, required_courses
+from .core_requests import get_station_data, get_endorsements, get_logins, get_roster, required_courses, get_theory_roster
 from .discord import send_message
 from .helpers import split_compare
 
@@ -47,7 +47,7 @@ def output_dict(may_control: bool, discord_msg: str, website_msg: str, required_
 
 
 def check_connection(connection: dict, station_data: list[dict], solos: list[dict], t1: list[dict], t2: list[dict],
-                     roster: list[dict]) -> dict:
+                     roster: list[dict], theory_roster: list[int]) -> dict:
     # Filter out EDW_APP
     if connection['callsign'] == 'EDW_APP':
         return output_dict(True, 'EDW_APP', 'EDW_APP')
@@ -137,7 +137,13 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
                                f'Someone has neither solo nor tier 1 endorsement for {connection["callsign"]}.',
                                f'You need an endorsement for {connection["callsign"]}.')
     else:
-        return output_dict(True, '', f'You may control {data["logon"]}.')
+        # Theory only roster check
+        if connection['rating'] == 2 and connection['cid'] in theory_roster and not safe_get(data, 's1_theory'):
+            return output_dict(False,
+                               f'Someone is controlling station {connection["callsign"]} on theory only roster.',
+                               f'You cannot control {connection["callsign"]} as it is not a theory only station.')
+        else:
+            return output_dict(True, '', f'You may control {data["logon"]}.')
 
 
 if __name__ == '__main__':
@@ -147,9 +153,10 @@ if __name__ == '__main__':
     roster = get_roster()
     logins = get_logins()
     datahub = get_station_data()
+    theory_roster = get_theory_roster()
     for login in logins:
         if check_obs_and_primary(login):
-            out = check_connection(login, datahub, solos, t1, t2, roster)
+            out = check_connection(login, datahub, solos, t1, t2, roster, theory_roster)
             check, msg = out['may_control'], out['discord_msg']
         if not check:
             with open('/data/monitor/messaged.txt', 'r') as f:
