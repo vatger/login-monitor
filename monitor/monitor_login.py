@@ -78,6 +78,11 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
                            f'No station found {connection["callsign"]}',
                            f'Station {connection["callsign"]} not found')
 
+    if connection['rating'] == 2 and connection['cid'] in theory_roster and not safe_get(data, 's1_theory'):
+        return output_dict(False,
+                           f'Someone is controlling station {connection["callsign"]} on theory only roster.',
+                           f'You cannot control {connection["callsign"]} as it is not a theory only station.')
+
     # Rating check
     station_type = data['logon'].split('_')[-1]
     if required_rating[station_type] > connection['rating']:
@@ -137,13 +142,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
                                f'Someone has neither solo nor tier 1 endorsement for {connection["callsign"]}.',
                                f'You need an endorsement for {connection["callsign"]}.')
     else:
-        # Theory only roster check
-        if connection['rating'] == 2 and connection['cid'] in theory_roster and not safe_get(data, 's1_theory'):
-            return output_dict(False,
-                               f'Someone is controlling station {connection["callsign"]} on theory only roster.',
-                               f'You cannot control {connection["callsign"]} as it is not a theory only station.')
-        else:
-            return output_dict(True, '', f'You may control {data["logon"]}.')
+        return output_dict(True, '', f'You may control {data["logon"]}.')
 
 
 if __name__ == '__main__':
