@@ -1,41 +1,95 @@
 {% extends 'base.html' %}
 
-{% block header %}
-{% endblock %}
-
 {% block content %}
-<div class="container">
-    <div class="row">
-        <h1>Can I Staff It?</h1>
-        <h3>Hi, {{ name }} 👋</h3>
-        <form class="mt-3" method="post">
-            <div>
-              <label class="form-label" for="station">Station</label>
-              <input class="form-control" name="station" id="station" placeholder="EDDF_S_TWR" required>
+<div class="max-w-4xl">
+
+    <!-- Unified Main Container matching "Shelves" -->
+    <div class="bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800 p-8 sm:p-10 shadow-sm transition-colors duration-200">
+
+        <!-- Header inside the card -->
+        <div class="border-b border-secondary-200 dark:border-secondary-800 pb-6 mb-8">
+            <h1 class="font-semibold text-3xl sm:text-4xl text-primary-900 dark:text-white tracking-[-0.02em]">
+                Can I Staff It?
+            </h1>
+            <p class="mt-2 text-secondary-800 dark:text-secondary-300">Hi, {{ name }} 👋</p>
+        </div>
+
+        <form method="post" class="max-w-xl">
+            <div class="mb-6">
+                <label class="block font-semibold text-primary-900 dark:text-white mb-2" for="station">Station</label>
+                <!-- Sleek dark input matching the search bar -->
+                <input class="w-full rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-950 px-4 py-3 text-primary-900 dark:text-white placeholder-secondary-800/50 dark:placeholder-secondary-300/40 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all" name="station" id="station" placeholder="EDDF_S_TWR" required>
             </div>
 
-            <input class="btn btn-primary mt-4" type="submit" value="Submit">
+            <button class="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white bg-primary-900 hover:bg-primary-800 dark:bg-secondary-800 dark:hover:bg-secondary-700 border border-transparent dark:border-secondary-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2" type="submit">
+                Submit
+            </button>
         </form>
 
         {% if out %}
-            <div class="mt-4 mb-4 bg-gray border-2 border-top border-gray"></div>
-            <div class="row">
-            <div> {% if out['may_control'] %} ✅ {{ out['website_msg'] }} {% else %} ❌ {{ out['website_msg'] }} {% endif %}</div>
-                <div><p>{% if out['required_courses'] %} <div class="col">
-                <ul>
-                {% for course in out['required_courses'] %}
-                    <li><a href={{ course['link'] }}>{{ course['name'] }}</a> </li>
-                {% endfor %}
-                </ul>
-                {%  endif %}
+        <div class="mt-10 pt-8 border-t border-secondary-200 dark:border-secondary-800 space-y-4">
+
+            <!-- Result Output -->
+            {% if out['may_control'] %}
+                <div class="flex items-start gap-4 rounded-2xl border border-success-200 dark:border-success-900/50 bg-success-50 dark:bg-success-950/30 p-6 transition-colors duration-200">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success-200 dark:bg-success-900/50 text-success-700 dark:text-success-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M20 6 9 17l-5-5"></path></svg>
+                    </div>
+                    <div>
+                        <!-- Added mt-1.5 here -->
+                        <h3 class="mt-1.5 font-semibold text-lg text-primary-900 dark:text-white">{{ out['website_msg'] }}</h3>
+            {% else %}
+                <div class="flex items-start gap-4 rounded-2xl border border-danger-200 dark:border-danger-900/50 bg-danger-50 dark:bg-danger-950/30 p-6 transition-colors duration-200">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-200 dark:bg-danger-900/50 text-danger-700 dark:text-danger-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </div>
+                    <div>
+                        <!-- Added mt-1.5 here -->
+                        <h3 class="mt-1.5 font-semibold text-lg text-primary-900 dark:text-white">{{ out['website_msg'] }}</h3>
+            {% endif %}
+
+                        {% if out['required_courses'] %}
+                        <div class="mt-4">
+                            <p class="text-sm font-semibold text-primary-900 dark:text-secondary-300 mb-2">Required Courses:</p>
+                            <ul class="space-y-2">
+                            {% for course in out['required_courses'] %}
+                                <li>
+                                    <a href="{{ course['link'] }}" class="group inline-flex items-center gap-1 font-semibold text-accent underline-offset-4 hover:underline">
+                                        {{ course['name'] }}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            {% if fam_msg %}
+            <!-- Warning Alert -->
+            <div class="flex items-start gap-4 rounded-2xl border border-warning-200 dark:border-warning-900/50 bg-warning-50 dark:bg-warning-950/30 p-6 transition-colors duration-200">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-200 dark:bg-warning-900/50 text-warning-700 dark:text-warning-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                </div>
+                <div>
+                    <!-- Added mt-1.5 here -->
+                    <h3 class="mt-1.5 font-semibold text-lg text-primary-900 dark:text-white">Familiarisation Required</h3>
+                    <p class="mt-1 text-warning-800 dark:text-warning-200/80 leading-7">You may need a familiarisation session before you control this station, see the <a href="https://training.vatsim-germany.org/trainee/" class="font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-4">training centre</a>.</p>
                 </div>
             </div>
-                <p>{% if fam_msg %} ⚠️ You may need a familiarisation session before you control this station, see the <a href="https://training.vatsim-germany.org/trainee/">training centre</a> {%  endif %}</p>
-            </div>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
-    <div class="row">
-        <a href="https://canistaffit.vatsim-germany.org/logout" color="red">Logout</a>
+
+    <!-- Styled Sidebar-like Logout Link -->
+    <div class="mt-8">
+        <a href="https://canistaffit.vatsim-germany.org/logout" class="inline-flex items-center gap-3 font-semibold text-accent hover:opacity-80 transition-opacity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+        </a>
     </div>
 </div>
 {% endblock %}

@@ -1,13 +1,24 @@
 {% extends 'base.html' %}
 
-{% block header %}
-{% endblock %}
-
 {% block content %}
-<div class="container">
-    <div class="row">
-        <p>You have been logged out.</p> <br>
-        <a href="https://canistaffit.vatsim-germany.org">Return to Can I Staff It</a>
+<div class="max-w-2xl mt-10">
+    <div class="bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800 p-8 sm:p-12 shadow-sm transition-colors duration-200">
+
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-success-50 dark:bg-success-950/50 text-success-700 dark:text-success-400 mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-7 w-7"><path d="M20 6 9 17l-5-5"></path></svg>
+        </div>
+
+        <h1 class="font-semibold text-3xl text-primary-900 dark:text-white tracking-[-0.03em] mb-4">
+            You have been logged out.
+        </h1>
+        <p class="text-secondary-800 dark:text-secondary-300 leading-7 mb-10">
+            Thank you for using Can I Staff It. You can now safely close this window.
+        </p>
+
+        <a href="https://canistaffit.vatsim-germany.org" class="inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 font-semibold text-white bg-primary-900 hover:bg-primary-800 dark:bg-secondary-800 dark:hover:bg-secondary-700 border border-transparent dark:border-secondary-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+            Return to Can I Staff It
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
     </div>
 </div>
 {% endblock %}
