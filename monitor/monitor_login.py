@@ -36,12 +36,26 @@ def check_obs_and_primary(connection: dict) -> bool:
     return connection['facility'] != 0 and connection['frequency'] != '199.998'
 
 
-def output_dict(may_control: bool, discord_msg: str, website_msg: str, required_courses: list[dict] = []) -> dict:
+def solo_info(solo: dict | None) -> dict | None:
+    """
+    Extracts the duration-relevant fields from a solo endorsement record.
+    """
+    if solo is None:
+        return None
+    return {
+        'expiry': solo['expiry'],
+        'max_days': solo['max_days']
+    }
+
+
+def output_dict(may_control: bool, discord_msg: str, website_msg: str, required_courses: list[dict] = [],
+                solo: dict | None = None) -> dict:
     output = {
         'may_control': may_control,
         'discord_msg': discord_msg,
         'website_msg': website_msg,
-        'required_courses': required_courses
+        'required_courses': required_courses,
+        'solo': solo
     }
     return output
 
@@ -56,6 +70,7 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
     user_has_t1 = False
     station_is_t1 = False
     t1_twr = False
+    matching_solo: dict | None = None
 
     # Check whether controller is on roster
     if connection['cid'] not in roster:
@@ -89,8 +104,8 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         # Check for solo endorsement
         # Get all solo endorsements of user
         user_solos = [solo for solo in solos if solo['user_cid'] == connection['cid']]
-        if user_solos:
-            user_has_solo = split_compare(user_solos[0]['position'], data['logon'])
+        matching_solo = next((solo for solo in user_solos if split_compare(solo['position'], data['logon'])), None)
+        user_has_solo = matching_solo is not None
         if station_type == 'TWR':
             # Is TWR part of T1 Program?
             if safe_get(data, 's1_twr') and connection['rating'] == 2:
@@ -136,13 +151,13 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
                     break
     if station_is_t1:
         if user_has_t1 or user_has_solo:
-            return output_dict(True, '', f'You may control {connection["callsign"]}.')
+            return output_dict(True, '', f'You may control {connection["callsign"]}.', solo=solo_info(matching_solo))
         else:
             return output_dict(False,
                                f'Someone has neither solo nor tier 1 endorsement for {connection["callsign"]}.',
                                f'You need an endorsement for {connection["callsign"]}.')
     else:
-        return output_dict(True, '', f'You may control {data["logon"]}.')
+        return output_dict(True, '', f'You may control {data["logon"]}.', solo=solo_info(matching_solo))
 
 
 if __name__ == '__main__':

@@ -1,8 +1,9 @@
+import hmac
 import os
 import requests
 from urllib.parse import quote_plus
 
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for
 from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, required_courses, get_theory_roster
 from .monitor_login import check_connection
 from dotenv import load_dotenv
@@ -13,6 +14,7 @@ oauth_auth = os.getenv('OAUTH_AUTH')
 oauth_user = os.getenv('OAUTH_USER')
 oauth_token = os.getenv('OAUTH_TOKEN')
 oauth_scopes = os.getenv('OAUTH_SCOPES')
+api_token = os.getenv('API_TOKEN')
 
 def login_url():
     id = os.environ['OAUTH_CLIENT_ID']
@@ -68,6 +70,44 @@ def create_app():
             return render_template('main.html', request=request, out=out, fam_msg=fam_msg, name=session.get('user_name'))
         else:
             return render_template('main.html', request=request, name=session.get('user_name'))
+
+    @app.route('/api/check', methods=('GET',))
+    def api_check():
+        if not api_token or not hmac.compare_digest(request.args.get('token', ''), api_token):
+            return jsonify({'error': 'invalid token'}), 401
+
+        user_id = request.args.get('user_id')
+        rating = request.args.get('rating')
+        station_name = request.args.get('station_name')
+        if not user_id or not rating or not station_name:
+            return jsonify({'error': 'user_id, rating and station_name are required'}), 400
+        try:
+            cid = int(user_id)
+            rating_int = int(rating)
+        except ValueError:
+            return jsonify({'error': 'user_id and rating must be integers'}), 400
+
+        tr = get_theory_roster()
+        solos = get_endorsements('solo')
+        t1 = get_endorsements('tier-1')
+        t2 = get_endorsements('tier-2')
+        roster = get_roster()
+        datahub = get_station_data()
+        connection = {
+            'cid': cid,
+            'callsign': station_name.upper(),
+            'name': '',
+            'rating': rating_int,
+            'facility': 5,
+            'frequency': 'website'
+        }
+        out = check_connection(connection, datahub, solos, t1, t2, roster, tr)
+        return jsonify({
+            'may_control': out['may_control'],
+            'reason': out['website_msg'],
+            'required_courses': out['required_courses'],
+            'solo': out['solo']
+        })
 
     @app.route('/callback')
     def callback():
