@@ -3,7 +3,7 @@ import requests
 from urllib.parse import quote_plus
 
 from flask import Flask, render_template, request, session, redirect, url_for
-from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, get_rating, required_courses, get_theory_roster
+from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, required_courses, get_theory_roster
 from .monitor_login import check_connection
 from dotenv import load_dotenv
 
