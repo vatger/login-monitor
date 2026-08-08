@@ -36,15 +36,16 @@ def create_app():
         if request.method == 'POST' or station:
             callsign = station.upper() if station and request.method == "GET" else request.form['station'].upper()
             # Check whether ID exists
-            try:
-                rating = get_rating(cid)
-            except:
-                rating = False
-                out = {
-                    'may_control': False,
-                    'website_msg': 'The controller ID seems to be incorrect.'
-                }
-                # may_control, msg = False, 'The controller ID seems to be incorrect.'
+            rating = session.get('rating')
+            # try:
+            #     rating = get_rating(cid)
+            # except:
+            #     rating = False
+            #     out = {
+            #         'may_control': False,
+            #         'website_msg': 'The controller ID seems to be incorrect.'
+            #     }
+            #     # may_control, msg = False, 'The controller ID seems to be incorrect.'
             if rating:
                 solos = get_endorsements('solo')
                 t1 = get_endorsements('tier-1')
@@ -96,6 +97,7 @@ def create_app():
             return redirect(url_for('main'))
         session['user_id'] = response.json()['data']['cid']
         session['user_name'] = response.json()['data']['personal']['name_first']
+        session['rating'] = response.json()['data']['vatsim']['rating']['id']
         return redirect(url_for('main'))
 
     @app.route('/logout')
