@@ -29,7 +29,3 @@ def get_fams():
     else:
         print(f"Error: {response.status_code} - {response.text}")
         return None
-
-
-if __name__ == '__main__':
-    print(get_station_data())
