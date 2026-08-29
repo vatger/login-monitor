@@ -16,7 +16,7 @@ fam_key = os.getenv('FAM_KEY')
 
 @cached(cache=TTLCache(maxsize=float('inf'), ttl=60 * 60))
 def get_fams():
-    url = "https://training.vatsim-germany.org/api/familiarisations"
+    url = "http://training.vatsim-germany.org/api/familiarisations"
     response = requests.get(url, headers={"Authorization": f"Bearer {fam_key}"})
 
     if response.status_code == 200:
