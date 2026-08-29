@@ -5,6 +5,7 @@ from urllib.parse import quote_plus
 from flask import Flask, render_template, request, session, redirect, url_for
 from .core_requests import get_endorsements, get_roster, get_logins, get_station_data, required_courses, get_theory_roster
 from .monitor_login import check_connection
+from .ts_requests import get_fams
 from dotenv import load_dotenv
 
 
@@ -52,6 +53,7 @@ def create_app():
                 t2 = get_endorsements('tier-2')
                 roster = get_roster()
                 datahub = get_station_data()
+                fams = get_fams()
                 connection = {
                     'cid': cid,
                     'callsign': callsign,
@@ -60,7 +62,7 @@ def create_app():
                     'facility': 5,
                     'frequency': 'website'
                 }
-                out = check_connection(connection, datahub, solos, t1, t2, roster, tr)
+                out = check_connection(connection, datahub, solos, t1, t2, roster, tr, fams)
 
             is_ctr_sector = callsign.split('_')[-1] == 'CTR'
             fam_msg = is_ctr_sector and out['may_control']
