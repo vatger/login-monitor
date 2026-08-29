@@ -9,10 +9,6 @@ headers = {
     'Accept': 'application/json'
 }
 
-def get_station_data() -> list[dict]:
-    r = requests.get("https://raw.githubusercontent.com/VATGER-Nav/datahub/production/api/stations.json", headers=headers)
-    return r.json()
-
 load_dotenv()
 
 fam_key = os.getenv('FAM_KEY')

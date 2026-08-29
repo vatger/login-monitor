@@ -1,6 +1,7 @@
 from .core_requests import get_station_data, get_endorsements, get_logins, get_roster, required_courses, get_theory_roster
 from .discord import send_message
 from .helpers import split_compare, check_user_familiarisations, stringify_fams
+from .ts_requests import get_fams
 
 
 ratings = {
@@ -161,9 +162,10 @@ if __name__ == '__main__':
     logins = get_logins()
     datahub = get_station_data()
     theory_roster = get_theory_roster()
+    fams = get
     for login in logins:
         if check_obs_and_primary(login):
-            out = check_connection(login, datahub, solos, t1, t2, roster, theory_roster)
+            out = check_connection(login, datahub, solos, t1, t2, roster, theory_roster, fams)
             check, msg = out['may_control'], out['discord_msg']
         if not check:
             with open('/data/monitor/messaged.txt', 'r') as f:
