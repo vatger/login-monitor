@@ -1,0 +1,39 @@
+import requests
+from cachetools import cached, TTLCache
+import os
+from dotenv import load_dotenv
+from collections import defaultdict
+
+
+headers = {
+    'Accept': 'application/json'
+}
+
+def get_station_data() -> list[dict]:
+    r = requests.get("https://raw.githubusercontent.com/VATGER-Nav/datahub/production/api/stations.json", headers=headers)
+    return r.json()
+
+load_dotenv()
+
+fam_key = os.getenv('FAM_KEY')
+
+
+@cached(cache=TTLCache(maxsize=float('inf'), ttl=60 * 60))
+def get_fams():
+    url = "https://training.vatsim-germany.org/api/familiarisations"
+    response = requests.get(url, headers={"Authorization": f"Bearer {fam_key}"})
+
+    if response.status_code == 200:
+        data = response.json()
+        data = data.get("data", [])
+        result = defaultdict(list)
+        for item in data:
+            result[item["vatsim_id"]].append(item["sector"])
+        return result
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return None
+
+
+if __name__ == '__main__':
+    print(get_station_data())
