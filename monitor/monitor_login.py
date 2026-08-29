@@ -1,6 +1,6 @@
 from .core_requests import get_station_data, get_endorsements, get_logins, get_roster, required_courses, get_theory_roster
 from .discord import send_message
-from .helpers import split_compare
+from .helpers import split_compare, check_user_familiarisations, stringify_fams
 
 
 ratings = {
@@ -47,7 +47,7 @@ def output_dict(may_control: bool, discord_msg: str, website_msg: str, required_
 
 
 def check_connection(connection: dict, station_data: list[dict], solos: list[dict], t1: list[dict], t2: list[dict],
-                     roster: list[dict], theory_roster: list[int]) -> dict:
+                     roster: list[dict], theory_roster: list[int], fams: list[int]) -> dict:
     # Filter out EDW_APP
     if connection['callsign'] == 'EDW_APP':
         return output_dict(True, 'EDW_APP', 'EDW_APP')
@@ -82,6 +82,14 @@ def check_connection(connection: dict, station_data: list[dict], solos: list[dic
         return output_dict(False,
                            f'Someone is controlling station {connection["callsign"]} on theory only roster.',
                            f'You cannot control {connection["callsign"]} as it is not a theory only station.')
+
+    # Familiarisation check
+    if safe_get(data, 'required_familiarisations'):
+        if safe_get(fams, connection['cid']):
+            if not check_user_familiarisations(fams[connection['cid']], data['required_familiarisations']):
+                return output_dict(False,
+                           f'Someone is controlling station {connection["callsign"]} without the required familiarisations.',
+                           f'You cannot control {connection["callsign"]} as you need familiarisations {stringify_fams(data["required_familiarisations"])}.')
 
     # Rating check
     station_type = data['logon'].split('_')[-1]
