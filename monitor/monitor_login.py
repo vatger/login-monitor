@@ -162,7 +162,7 @@ if __name__ == '__main__':
     logins = get_logins()
     datahub = get_station_data()
     theory_roster = get_theory_roster()
-    fams = get
+    fams = get_fams()
     for login in logins:
         if check_obs_and_primary(login):
             out = check_connection(login, datahub, solos, t1, t2, roster, theory_roster, fams)
